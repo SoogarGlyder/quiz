@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif ASTS - Seni Tari Kelas 8</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #f4f0ec;
+            color: #111;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .quiz-container {
+            background-color: #fff;
+            width: 100%;
+            max-width: 700px;
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0px #000;
+            border-radius: 8px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 4px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .pertanyaan {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .opsi-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-opsi {
+            background-color: #ffde59;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            padding: 12px 15px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-opsi:active:not(:disabled) {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        .btn-opsi:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .btn-opsi.benar {
+            background-color: #7ed957;
+            color: #000;
+        }
+
+        .btn-opsi.salah {
+            background-color: #ff5757;
+            color: #fff;
+        }
+
+        .pembahasan-box {
+            display: none;
+            background-color: #e0f7fa;
+            border: 3px solid #000;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .pembahasan-box h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .btn-next {
+            display: none;
+            margin-top: 20px;
+            background-color: #cb6ce6;
+            color: #fff;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+        }
+        
+        .btn-next:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        .score-board {
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz-container">
+        <div class="header">
+            <h2 id="soal-tracker">Soal 1 / 50</h2>
+            <h2 id="score-tracker">Skor: 0</h2>
+        </div>
+        
+        <div id="quiz-content">
+            <div class="pertanyaan" id="pertanyaan">Memuat pertanyaan...</div>
+            <div class="opsi-container" id="opsi-container"></div>
+            
+            <div class="pembahasan-box" id="pembahasan-box">
+                <h3>💡 Pembahasan:</h3>
+                <p id="pembahasan-teks"></p>
+            </div>
+            
+            <button class="btn-next" id="btn-next" onclick="nextSoal()">Lanjut ke Soal Berikutnya ➔</button>
+        </div>
+
+        <div class="score-board" id="score-board">
+            <h1>Kuis Selesai! 🎉</h1>
+            <h2 id="final-score">Skor Akhir: 100</h2>
+            <button class="btn-next" style="display: block; margin-top: 20px; background-color: #5ce1e6; color: #000;" onclick="location.reload()">Ulangi Kuis</button>
+        </div>
+    </div>
+
+    <script>
+        const soalData = [
+            {
+                pertanyaan: "<p style='text-align: justify;'>Berdasarkan proses pewarisannya, tari tradisi dapat didefinisikan sebagai...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tarian yang diciptakan oleh anak muda masa kini dan cepat populer.' },
+                    { label: 'B', teks: 'Tarian yang diwariskan secara turun-temurun dari satu generasi ke generasi berikutnya di suatu daerah.' },
+                    { label: 'C', teks: 'Tarian yang menggabungkan unsur budaya lokal dengan budaya asing dari luar negeri.' },
+                    { label: 'D', teks: 'Tarian yang diciptakan khusus untuk sebuah perlombaan tingkat nasional.' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari tradisi adalah suatu bentuk tarian yang tumbuh dan berkembang di suatu daerah tertentu yang diwariskan secara turun-temurun antargenerasi[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Sebuah tarian akan tetap diakui sebagai tari tradisional apabila mempertahankan ciri utamanya, yaitu...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Selalu mengubah gerakan agar sesuai dengan tren.' },
+                    { label: 'B', teks: 'Menggunakan pakaian modern yang bebas.' },
+                    { label: 'C', teks: 'Berpedoman kuat pada pakem, aturan, atau nilai filosofis daerah setempat.' },
+                    { label: 'D', teks: 'Diiringi dengan musik elektronik modern tanpa alat musik daerah.' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Ciri utama tari tradisi adalah memiliki pedoman, pakem, atau aturan baku yang tidak boleh diubah sembarangan karena mengandung nilai filosofis masyarakatnya[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Dalam melakukan gerak tari, seorang penari pasti akan membutuhkan elemen pendukung. Tiga unsur dasar dari gerak tari meliputi...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Ruang, waktu, dan tenaga' },
+                    { label: 'B', teks: 'Musik, panggung, dan kostum' },
+                    { label: 'C', teks: 'Wirama, wirasa, dan panggung' },
+                    { label: 'D', teks: 'Tata rias, properti, dan pola lantai' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Unsur dasar pembentuk gerak tari adalah ruang (jangkauan gerak), waktu (durasi/kecepatan gerak), dan tenaga (kekuatan yang digunakan untuk bergerak)[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari Hudoq dari suku Dayak, Kalimantan, dibawakan dengan memakai topeng dan sering ditampilkan saat musim tanam. Fungsi utama tarian ini adalah sebagai sarana...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Hiburan anak-anak' },
+                    { label: 'B', teks: 'Tontonan wisatawan' },
+                    { label: 'C', teks: 'Upacara adat atau ritual penolak bala' },
+                    { label: 'D', teks: 'Pergaulan muda-mudi' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Tari Hudoq berfungsi sebagai tarian ritual/upacara adat untuk menolak hama penyakit dan memohon agar panen melimpah[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari yang sengaja disajikan dengan persiapan matang, kostum yang gemerlap, panggung yang tertata, dan bertujuan untuk dinikmati keindahannya oleh penonton, disebut sebagai tari yang berfungsi untuk sarana...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Upacara keagamaan' },
+                    { label: 'B', teks: 'Terapi kesehatan' },
+                    { label: 'C', teks: 'Pertunjukan' },
+                    { label: 'D', teks: 'Ritual pemakaman' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Fungsi tari sebagai sarana pertunjukan sangat mengutamakan koreografi yang matang, keindahan estetika, dan dipersiapkan secara khusus untuk dipertontonkan[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Perhatikan contoh kegiatan berikut:<br>1. Menari Jaipong bersama di acara hajatan desa.<br>2. Pementasan Sendratari Ramayana di Prambanan.<br>3. Tari Seblang di Banyuwangi untuk bersih desa.<br>Berdasarkan kegiatan di atas, urutan fungsi tari yang tepat adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Pertunjukan, Hiburan, Upacara' },
+                    { label: 'B', teks: 'Hiburan, Pertunjukan, Upacara' },
+                    { label: 'C', teks: 'Upacara, Hiburan, Pertunjukan' },
+                    { label: 'D', teks: 'Hiburan, Upacara, Pertunjukan' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Jaipong di hajatan berfungsi sebagai hiburan/pergaulan. Sendratari Ramayana sebagai pertunjukan. Tari Seblang sebagai sarana upacara (bersih desa)[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Perbedaan paling mencolok antara tari yang berfungsi sebagai upacara dibandingkan dengan tari hiburan terletak pada...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari upacara bersifat sakral/magis, sedangkan tari hiburan mengutamakan kebahagiaan bersosialisasi.' },
+                    { label: 'B', teks: 'Tari upacara selalu mahal biayanya, sedangkan tari hiburan gratis.' },
+                    { label: 'C', teks: 'Tari upacara ditarikan sendirian, sedangkan tari hiburan selalu berpasangan.' },
+                    { label: 'D', teks: 'Tari upacara hanya ada di siang hari, sedangkan tari hiburan di malam hari.' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Tari upacara terikat oleh aturan adat dan bersifat sakral/mistis. Sebaliknya, tari hiburan bersifat santai, interaktif, dan bertujuan menyemarakkan suasana[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari Saman dibawakan oleh banyak penari dengan tempo yang sangat cepat dan gerak yang harus serempak. Jika salah satu penari terlambat bergerak, maka keindahan tarian akan rusak. Nilai karakter apa yang paling diajarkan melalui tarian ini?</p>",
+                opsi: [
+                    { label: 'A', teks: 'Kebebasan berekspresi secara mandiri' },
+                    { label: 'B', teks: 'Kedisiplinan yang tinggi dan kerja sama tim' },
+                    { label: 'C', teks: 'Kekuatan fisik yang sangat kuat untuk bertarung' },
+                    { label: 'D', teks: 'Sifat ingin menonjolkan diri sendiri di depan umum' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Kekompakan dalam tarian berkelompok seperti Saman membutuhkan disiplin tingkat tinggi untuk menjaga ritme dan kerja sama agar gerakan tetap selaras[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Masyarakat di suatu desa pesisir selalu menyelenggarakan tarian khusus sebelum mereka melaut di musim tertentu. Tarian tersebut diyakini akan mendatangkan restu keselamatan dari Sang Pencipta. Hal ini menunjukkan tarian tersebut berfungsi sebagai...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Sarana hiburan' },
+                    { label: 'B', teks: 'Sarana pertunjukan' },
+                    { label: 'C', teks: 'Sarana upacara adat/agama' },
+                    { label: 'D', teks: 'Sarana pergaulan anak muda' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Segala bentuk tarian yang digunakan untuk memohon keselamatan, doa, penolak bala, dan ritual sakral dikategorikan ke dalam sarana upacara[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Di era modernisasi, Tari Pendet yang awalnya murni berfungsi sebagai sarana upacara pemujaan di pura, kini sering ditarikan di bandara untuk menyambut tamu kehormatan. Analisis yang paling tepat mengenai kondisi ini adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari tradisi sudah tidak memiliki fungsi upacara lagi selamanya.' },
+                    { label: 'B', teks: 'Fungsi tari tradisi bisa berkembang dari sarana upacara menjadi sarana pertunjukan/penyambutan menyesuaikan kebutuhan zaman.' },
+                    { label: 'C', teks: 'Hal tersebut merupakan pelanggaran hukum negara yang tidak boleh dibiarkan.' },
+                    { label: 'D', teks: 'Tari tersebut kini menjadi tarian pergaulan yang bebas dilakukan siapa saja.' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Seiring perkembangan zaman, fungsi tari tradisi bisa bergeser atau bertambah, yang dulunya murni ritual kini bisa diadaptasi untuk pertunjukan atau penyambutan tamu[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Saat latihan tari kelompok untuk acara perpisahan sekolah, kelompok tari kelas 8 saling membantu dalam mempersiapkan properti, menghafal hitungan, dan patungan menyewa kostum. Nilai luhur yang tercermin dari proses ini adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Gotong royong dan tanggung jawab bersama' },
+                    { label: 'B', teks: 'Estetika dan wiraga murni' },
+                    { label: 'C', teks: 'Individualisme positif' },
+                    { label: 'D', teks: 'Keberanian berimprovisasi sendiri' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Proses berlatih tari berkelompok melatih siswa untuk saling membantu (gotong royong) dan bertanggung jawab atas tugasnya agar pementasan berhasil[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari Gambyong, Tari Gatotkaca, dan Tari Panji Semirang apabila dilihat berdasarkan jumlah penarinya (ketika dibawakan oleh satu orang), maka termasuk ke dalam jenis tari...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Kelompok' },
+                    { label: 'B', teks: 'Tunggal' },
+                    { label: 'C', teks: 'Berpasangan' },
+                    { label: 'D', teks: 'Massal' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari tunggal adalah tarian yang dirancang untuk dibawakan oleh seorang penari saja (bisa laki-laki atau perempuan)[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Menurut Soedarsono, \"Tari adalah ekspresi jiwa manusia yang diungkapkan melalui gerak ritmis yang indah.\" Makna dari frasa 'ekspresi jiwa manusia' pada pengertian tersebut adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari hanya bisa dilakukan jika manusia sedang bersedih.' },
+                    { label: 'B', teks: 'Tari adalah luapan perasaan, pikiran, dan kehendak batin yang dituangkan menjadi gerakan tubuh.' },
+                    { label: 'C', teks: 'Tari selalu meniru gerak roh leluhur.' },
+                    { label: 'D', teks: 'Tari tidak membutuhkan pikiran, melainkan hanya gerakan refleks.' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Ekspresi jiwa manusia bermakna bahwa tarian merupakan media bagi manusia untuk meluapkan ide, emosi, dan perasaannya secara visual lewat gerak tubuh[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Sebuah tarian daerah sengaja disusun ulang dengan koreografi yang lebih indah, rumit, dan diatur sedemikian rupa tata letak panggungnya agar penonton berdecak kagum. Tarian ini sangat menonjolkan fungsinya sebagai...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Sarana Pertunjukan' },
+                    { label: 'B', teks: 'Sarana Upacara' },
+                    { label: 'C', teks: 'Sarana Olahraga' },
+                    { label: 'D', teks: 'Sarana Pemujaan' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Fungsi pertunjukan menitikberatkan pada aspek estetika, koreografi yang digarap serius, dan kenyamanan visual penonton yang melihatnya[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Salah satu ciri tari tradisional di beberapa wilayah timur Indonesia (seperti NTT atau Papua) yang mendapat pengaruh kuat dari ajaran Katolik dan Kristen biasanya ditandai dengan...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Digunakannya sesajen bunga tujuh rupa.' },
+                    { label: 'B', teks: 'Adanya iringan lagu-lagu pujian gerejawi/rohani serta nuansa kebersamaan persaudaraan.' },
+                    { label: 'C', teks: 'Selalu menceritakan perang antar suku.' },
+                    { label: 'D', teks: 'Penggunaan topeng berwujud roh jahat.' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Pengaruh agama Kristen dan Katolik banyak masuk ke wilayah Indonesia Timur, memengaruhi budaya tarinya sehingga sering memuat nyanyian pujian dan semangat kebersamaan jemaat[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Dari daftar tarian berikut ini, manakah yang lahir dan berkembang sangat kuat di bawah pengaruh masuknya budaya Hindu dan Buddha di Indonesia?</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari Saman dan Tari Zapin' },
+                    { label: 'B', teks: 'Tari Kebalai dan Tari Sajojo' },
+                    { label: 'C', teks: 'Sendratari Ramayana dan Tari Legong' },
+                    { label: 'D', teks: 'Tari Hudoq dan Tari Tortor' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Ramayana adalah epos/cerita besar dari agama Hindu. Tari Legong dan seni tari Keraton Jawa juga sangat kental dengan nilai ajaran Hindu-Buddha[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari yang memiliki ciri-ciri gerakan sangat sederhana (cenderung menghentak-hentakkan kaki), iringannya hanya berupa tepukan tangan atau alat pukul sederhana, dan bersifat sangat magis/mistis adalah pengertian dari tari...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Klasik' },
+                    { label: 'B', teks: 'Modern' },
+                    { label: 'C', teks: 'Primitif (Prasejarah)' },
+                    { label: 'D', teks: 'Kreasi Baru' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Tari primitif (masa prasejarah) berkembang sebelum masyarakat mengenal kerajaan. Cirinya geraknya belum memiliki pakem rumit, bersifat meniru alam, dan bernuansa magis kuat[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Berdasarkan lingkungan tempat perkembangannya, tari tradisional yang tumbuh di lingkungan keraton atau istana raja dan memiliki tingkat keindahan serta aturan yang sangat baku disebut...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari Rakyat' },
+                    { label: 'B', teks: 'Tari Klasik' },
+                    { label: 'C', teks: 'Tari Primitif' },
+                    { label: 'D', teks: 'Tari Pergaulan' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari Klasik adalah tarian yang berkembang di lingkungan bangsawan istana (keraton). Tarian ini memiliki aturan (pakem) mutlak yang tidak boleh dilanggar[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Contoh tari tradisional yang masih dipertahankan hingga kini untuk keperluan upacara ritual adat atau keagamaan adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari Jaipong' },
+                    { label: 'B', teks: 'Tari Sanghyang Dedari' },
+                    { label: 'C', teks: 'Tari Merak' },
+                    { label: 'D', teks: 'Tari Payung' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari Sanghyang Dedari di Bali merupakan tarian sakral (dipercaya melibatkan roh bidadari) untuk mengusir wabah penyakit, sehingga berfungsi murni sebagai upacara ritual[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Dalam acara upacara perkawinan di beberapa daerah, seringkali disisipkan tarian yang meriah di mana penari akan mengajak tamu undangan untuk ikut menari bersama. Fungsi tarian ini pada upacara tersebut adalah sebagai...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tolak bala' },
+                    { label: 'B', teks: 'Tari Pergaulan atau Hiburan' },
+                    { label: 'C', teks: 'Ritual menyembah leluhur' },
+                    { label: 'D', teks: 'Tari pendidikan' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tarian yang interaktif dan mengajak penonton berbaur untuk merayakan kegembiraan bersama (seperti pesta panen/pernikahan) berfungsi sebagai tari pergaulan/hiburan[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari Kebalai merupakan salah satu tarian massal yang menunjukkan keakraban, persaudaraan, dan memiliki pengaruh kuat dari budaya agama Kristen di wilayah timur. Tari ini berasal dari daerah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Pulau Rote, Nusa Tenggara Timur (NTT)' },
+                    { label: 'B', teks: 'Makassar, Sulawesi Selatan' },
+                    { label: 'C', teks: 'Banda Aceh, Aceh' },
+                    { label: 'D', teks: 'Banjarmasin, Kalimantan Selatan' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Tari Kebalai adalah tari pergaulan tradisional yang berasal dari Pulau Rote, NTT, sering ditampilkan pasca ibadah gereja atau perayaan adat[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Berikut ini adalah daftar acara:<br>1. Penyambutan panen padi<br>2. Perayaan pernikahan<br>3. Pemujaan roh nenek moyang<br>4. Lomba tari tingkat provinsi<br><br>Manakah kegiatan yang paling berkaitan erat dengan fungsi awal munculnya tari tradisi di masa lampau?</p>",
+                opsi: [
+                    { label: 'A', teks: '1 dan 3' },
+                    { label: 'B', teks: '2 dan 4' },
+                    { label: 'C', 'teks': '1 dan 4' },
+                    { label: 'D', teks: '3 dan 4' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Pada mulanya di masa prasejarah, manusia menari murni untuk kepentingan bertahan hidup dan keagamaan (seperti meminta kesuburan panen atau memuja roh leluhur/animisme)[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Berdasarkan jumlah penarinya, tarian yang dibawakan oleh dua orang (bisa sesama jenis atau berbeda jenis) yang gerakannya saling merespon dan berkaitan disebut tari berpasangan. Contoh dari tari ini adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari Pendet' },
+                    { label: 'B', teks: 'Tari Karonsih' },
+                    { label: 'C', teks: 'Tari Saman' },
+                    { label: 'D', teks: 'Tari Kecak' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari Karonsih adalah contoh tari berpasangan dari Jawa Tengah yang menceritakan romansa Dewi Sekartaji dan Panji Asmarabangun[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'><em>(Perhatikan deskripsi visual berikut)</em> Pada sebuah gambar terlihat sekumpulan penari wanita memakai busana dodotan yang sangat mewah khas kerajaan Jawa, menari dengan gerak yang sangat lambat, halus, dan mata merunduk. Tari ini dibawakan di pendopo keraton.<br><br>Berdasarkan deskripsi tersebut, tarian itu tergolong sebagai tari...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Rakyat' },
+                    { label: 'B', teks: 'Klasik' },
+                    { label: 'C', teks: 'Kreasi' },
+                    { label: 'D', teks: 'Kontemporer' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Ciri busana mewah (dodotan), ditarikan di keraton, dan memiliki gerak yang sangat halus merunduk adalah identitas mutlak dari Tari Tradisional Klasik[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Perbedaan mendasar antara tari keraton (klasik) dan tari rakyat terletak pada...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari keraton memiliki aturan gerak yang bebas, tari rakyat memiliki aturan baku.' },
+                    { label: 'B', teks: 'Tari keraton hanya ditarikan oleh laki-laki, tari rakyat ditarikan perempuan.' },
+                    { label: 'C', teks: 'Tari keraton tumbuh di lingkungan istana dengan pakem ketat, sedangkan tari rakyat tumbuh di kalangan jelata dengan gerak yang lebih spontan dan bebas.' },
+                    { label: 'D', teks: 'Tari keraton menggunakan alat musik modern, tari rakyat menggunakan gamelan.' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Tari keraton diciptakan oleh empu tari istana sehingga sarat akan nilai filosofis dan pakem kaku, sedangkan tari rakyat lahir di luar tembok istana dan mementingkan ekspresi sosial yang bebas[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Manakah dari pernyataan berikut yang <strong>BUKAN</strong> merupakan ciri-ciri dari seni tari tradisional?</p>",
+                opsi: [
+                    { label: 'A', teks: 'Gerakannya diciptakan dan selalu berubah secara bebas mengikuti zaman.' },
+                    { label: 'B', teks: 'Pakaian dan tata riasnya khas daerah tertentu.' },
+                    { label: 'C', teks: 'Berkembang di suatu daerah secara turun-temurun.' },
+                    { label: 'D', teks: 'Mengandung nilai filosofis atau makna dari adat setempat.' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Tari tradisional memiliki pakem yang dipegang teguh. Tarian yang geraknya sengaja diubah-ubah bebas mengikuti zaman dan tak beraturan disebut tari modern atau kontemporer[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'><em>(Perhatikan deskripsi visual berikut)</em> Seorang penari wanita di atas panggung terlihat menari dengan gerakan lincah dan enerjik, lalu ia melempar selendangnya ke arah salah satu penonton laki-laki untuk diajak menari bersama (ngibing).<br><br>Berdasarkan fungsinya, tarian tersebut masuk ke dalam jenis tari...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Upacara sakral' },
+                    { label: 'B', teks: 'Pergaulan' },
+                    { label: 'C', teks: 'Tari perang' },
+                    { label: 'D', teks: 'Tari penyambutan tamu negara' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Ciri khas tari pergaulan adalah memecah jarak antara penari dan penonton. Penari mengundang penonton ikut menari (ngibing) sebagai wujud interaksi keakraban sosial[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Jika disajikan gambar sekelompok pria berkumpul membentuk lingkaran sambil mengangkat tangan, bertelanjang dada, memakai kain bermotif kotak-kotak hitam putih, dan menyorakkan suara \"Cak-cak-cak\". Berdasarkan gambar tersebut, analisis yang benar adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Itu adalah Tari Saman dari Aceh, berfungsi untuk dakwah.' },
+                    { label: 'B', teks: 'Itu adalah Tari Kecak dari Bali, awalnya untuk ritual namun kini berfungsi sebagai pertunjukan.' },
+                    { label: 'C', teks: 'Itu adalah Tari Reog dari Ponorogo, berfungsi untuk upacara kematian.' },
+                    { label: 'D', teks: 'Itu adalah Tari Hudoq dari Kalimantan, berfungsi untuk meminta hujan.' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Deskripsi kain poleng (kotak-kotak) dan teriakan ritmis vokal "cak" secara melingkar adalah identitas Tari Kecak dari Bali[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Salah satu keunikan yang sangat ikonik dari gerak tari tradisional khas daerah Bali (seperti pada Tari Pendet atau Legong) adalah pada unsur gerak mata, yang dikenal dengan sebutan...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Pacak gulu' },
+                    { label: 'B', teks: 'Nyempurit' },
+                    { label: 'C', teks: 'Seledet' },
+                    { label: 'D', teks: 'Ukel' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Seledet (gerakan melirik mata ke kiri dan kanan dengan tajam dan cepat tanpa menolehkan kepala) adalah ciri khas yang membedakan tari Bali dengan tari daerah lain[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Karakteristik gerak tari tradisional dari daerah Papua secara umum sangat menonjolkan kekuatan fisik. Gerakan kaki pada mayoritas tarian Papua biasanya berupa...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Jalan berjingkat (jinjit) secara halus' },
+                    { label: 'B', teks: 'Hentakan kaki ke tanah secara cepat, kuat, dan ritmis' },
+                    { label: 'C', teks: 'Menyeret telapak kaki tanpa diangkat dari tanah' },
+                    { label: 'D', teks: 'Lompatan tinggi seperti balet' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari dari daerah Papua sangat dinamis dan enerjik, didominasi oleh hentakan kaki yang kuat menyentuh tanah sebagai wujud semangat kebersamaan dan kedekatan dengan bumi[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari Cokek adalah kesenian khas Betawi di mana penarinya sering mengalungkan selendang ke leher penonton (tamu) untuk mengajaknya menari bersama. Berdasarkan adanya interaksi sosial dalam pertunjukan ini, fungsi Tari Cokek adalah sebagai sarana...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Upacara mistis' },
+                    { label: 'B', teks: 'Terapi psikologis' },
+                    { label: 'C', teks: 'Pergaulan' },
+                    { label: 'D', teks: 'Pertarungan/bela diri' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Tradisi mengalungkan selendang kepada tamu/penonton merupakan wujud undangan untuk berjoget bersama demi menghangatkan suasana sosial, yang adalah inti dari tari pergaulan[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari Pakarena dikenal dengan properti kipasnya dan iringan alat musik gendang yang dimainkan dengan sangat cepat, bertolak belakang dengan gerakan penari wanitanya yang lambat dan lembut. Tari tradisional ini berasal dari provinsi...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Sumatera Barat' },
+                    { label: 'B', teks: 'Jawa Timur' },
+                    { label: 'C', teks: 'Sulawesi Selatan' },
+                    { label: 'D', teks: 'Kalimantan Timur' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Tari Pakarena merupakan tarian klasik kebanggaan masyarakat Bugis-Makassar, Provinsi Sulawesi Selatan[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Dari berbagai jenis tarian di Bali, manakah di bawah ini yang merupakan contoh tari tradisional <em>rakyat</em> (berkembang di luar keraton dan berfungsi sebagai hiburan pergaulan)?</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari Bedhaya Ketawang' },
+                    { label: 'B', teks: 'Tari Joged Bumbung' },
+                    { label: 'C', teks: 'Tari Legong Kraton' },
+                    { label: 'D', teks: 'Tari Srimpi' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Joged Bumbung adalah tari rakyat pergaulan di Bali yang diiringi instrumen bambu dan bersifat menghibur. Bedhaya, Srimpi, dan Legong merupakan peninggalan tari klasik istana[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tari Gending Sriwijaya dari Sumatera Selatan memiliki keunikan motif gerak yang sangat bertumpu pada keanggunan bentuk jari-jemari tangan. Untuk mempertegas keunikan tersebut, penari menggunakan properti berupa...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tanggai (kuku palsu emas)' },
+                    { label: 'B', teks: 'Mandau (pedang khas)' },
+                    { label: 'C', teks: 'Kipas besar' },
+                    { label: 'D', teks: 'Piring porselen' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Tanggai adalah kuku buatan terbuat dari kuningan atau emas yang dipakai di jari-jari penari perempuan Gending Sriwijaya untuk memperindah lentikan jari tangannya[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Unsur tenaga (kuat/lemah) dalam tarian sangat berpengaruh pada ekspresi yang dihasilkan. Karakter tenaga pada mayoritas gerak tari daerah Papua (seperti Tari Yospan) adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Sangat lemah dan patah-patah' },
+                    { label: 'B', teks: 'Melayang ringan tanpa bobot' },
+                    { label: 'C', teks: 'Kuat, besar, dan dinamis' },
+                    { label: 'D', teks: 'Tertahan dan lambat' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Gerak tarian daerah Papua (Timur) dikenal dengan penggunaan tenaga yang kuat, ritme cepat, dan ekspresi yang gembira serta enerjik[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Perhatikan pernyataan berikut:<br>1. Memiliki aturan/pakem gerak yang baku dan ketat.<br>2. Tumbuh subur di lingkungan pedesaan yang agraris.<br>3. Menggunakan tata busana yang sangat mewah dan nilai estetika tinggi.<br>4. Memiliki fungsi utama sebagai pemanggil hujan.<br><br>Pernyataan yang menganalisis karakteristik tari tradisi <em>klasik</em> dengan tepat adalah nomor...</p>",
+                opsi: [
+                    { label: 'A', teks: '1 dan 2' },
+                    { label: 'B', teks: '1 dan 3' },
+                    { label: 'C', teks: '2 dan 4' },
+                    { label: 'D', teks: '3 dan 4' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari klasik berkembang di keraton dengan kostum mewah (3) dan pakem baku (1). Nomor (2) dan (4) lebih tepat untuk tari rakyat atau tari primitif[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Dalam melestarikan tari tradisi, mengapa kita dianjurkan untuk tidak hanya menghafal ragam geraknya saja, tetapi juga perlu mempelajari sejarah, fungsi, lirik musik, dan nilai busananya?</p>",
+                opsi: [
+                    { label: 'A', teks: 'Agar dapat dijual kepada turis asing dengan harga yang sangat mahal.' },
+                    { label: 'B', teks: 'Supaya kita bisa mengubah gerakannya menjadi tari modern yang viral.' },
+                    { label: 'C', teks: 'Agar nilai filosofis, pesan moral, dan roh dari kebudayaan bangsa tersebut tetap utuh dan tidak kehilangan maknanya.' },
+                    { label: 'D', teks: 'Karena mempelajari gerak saja tidak akan masuk ke nilai rapor.' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Pelestarian utuh mencakup pemahaman sejarah dan budaya supaya tarian tersebut tidak hanya menjadi gerakan fisik kosong, melainkan tetap menjadi identitas dan penyampai pesan leluhur[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Kesenian Tari Cokek sebagai hasil asimilasi budaya Tionghoa dan Betawi tidak bisa dilepaskan dari peran musik tradisional pengiringnya. Ansambel musik tradisional yang mengiringi Tari Cokek adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Gamelan Pelog' },
+                    { label: 'B', teks: 'Gambang Kromong' },
+                    { label: 'C', teks: 'Talempong' },
+                    { label: 'D', teks: 'Angklung Buhun' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Gambang Kromong adalah orkes paduan instrumen pribumi (gambang) dan Tionghoa (tehyan/kongahyan) yang secara eksklusif menjadi iringan utama Tari Cokek khas Betawi[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Jika kita membandingkan Tari Saman (Aceh) dengan Tari Kecak (Bali), aspek persamaan utama yang tepat yang menyatukan kedua tarian kelompok tersebut dari segi iringan musik adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Keduanya sama-sama menggunakan iringan musik dari alat musik Gamelan Perunggu.' },
+                    { label: 'B', teks: 'Keduanya mengandalkan musik internal (suara vokal penari, tepukan tangan, atau tepukan tubuh).' },
+                    { label: 'C', teks: 'Keduanya ditarikan dalam formasi duduk melingkar seperti cincin.' },
+                    { label: 'D', teks: 'Keduanya merupakan sarana penyebaran ajaran agama yang sama.' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Baik Saman maupun Kecak tidak memakai alat musik eksternal (instrumen gamelan dll), melainkan memanfaatkan vokal mulut penari dan tepukan tangan/dada sebagai musik internal[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Kelompokkanlah daftar tari berikut dengan daerah asalnya secara tepat: (1) Tari Piring, (2) Tari Jaipong, (3) Tari Sajojo.</p>",
+                opsi: [
+                    { label: 'A', teks: '(1) Sumatera Utara, (2) Jawa Tengah, (3) Maluku' },
+                    { label: 'B', teks: '(1) Sumatera Barat, (2) Jawa Barat, (3) Papua' },
+                    { label: 'C', teks: '(1) Aceh, (2) DKI Jakarta, (3) NTT' },
+                    { label: 'D', teks: '(1) Riau, (2) Jawa Timur, (3) Sulawesi Utara' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari Piring berasal dari Minangkabau (Sumatera Barat), Jaipong dari Sunda (Jawa Barat), dan Sajojo dari Papua[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Ciri khas gerak dari tari daerah gaya Yogyakarta pada umumnya menunjukkan karakteristik yang...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Patah-patah, tegas, anggun, dengan posisi badan merendah (mendhak)' },
+                    { label: 'B', teks: 'Melompat-lompat tinggi dengan tempo sangat cepat' },
+                    { label: 'C', teks: 'Banyak menggunakan gerakan bahu bergetar dan hentakan kaki mengambang' },
+                    { label: 'D', teks: 'Hanya menggunakan gerakan tangan tanpa memindahkan kaki' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Tari klasik Yogyakarta sangat mengutamakan posisi kuda-kuda merendah (mendhak), gerakannya anggun, kaku namun berwibawa, dan sarat filosofi kesopanan istana[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Jika kamu melihat gambar penari yang membawa dua buah piring kecil di telapak tangannya sambil menari menginjak pecahan kaca, maka dapat dipastikan tarian tersebut bernama...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari Lilin' },
+                    { label: 'B', teks: 'Tari Piring' },
+                    { label: 'C', teks: 'Tari Kuda Lumping' },
+                    { label: 'D', teks: 'Tari Bosara' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari Piring dari Minangkabau seringkali dipertunjukkan dengan keahlian memutar piring di tangan tanpa jatuh, dan sebagai puncaknya penari menari di atas pecahan kaca[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Sebuah gambar memperlihatkan puluhan pemuda berduduk rapi memanjang bersaf, mengenakan pakaian hitam bermotif merah kuning khas Gayo. Mereka menggerakkan tangan menepuk dada secara serempak. Tarian ini berasal dari daerah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Kalimantan Barat' },
+                    { label: 'B', teks: 'Bali' },
+                    { label: 'C', teks: 'Nanggroe Aceh Darussalam' },
+                    { label: 'D', teks: 'Sulawesi Tengah' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Ciri-ciri penari duduk berjejer, menepuk dada, dan berasal dari Gayo adalah Tari Saman, yang berasal dari Provinsi Aceh[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Gambar seorang penari wanita mengenakan mahkota bunga kamboja kemasan, memegang sebuah bokor kecil (nampan bambu) berisi kelopak bunga yang siap ditaburkan, merupakan identitas dari tarian...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Tari Merak' },
+                    { label: 'B', teks: 'Tari Pendet' },
+                    { label: 'C', teks: 'Tari Jaipong' },
+                    { label: 'D', teks: 'Tari Remo' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Tari Pendet dari Bali selalu diidentikkan dengan penari wanita yang membawa bokor berisi bunga untuk ditaburkan sebagai wujud selamat datang atau pemujaan[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Berbeda dengan seni rupa yang menjadikan kanvas sebagai medium utamanya, unsur utama sekaligus bahan baku pembentuk seni tari adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Suara' },
+                    { label: 'B', teks: 'Kostum' },
+                    { label: 'C', teks: 'Gerak tubuh (tubuh manusia)' },
+                    { label: 'D', teks: 'Panggung' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Media atau unsur paling fundamental dalam seni tari adalah gerak (tubuh manusia)[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Tidak semua gerakan tubuh manusia bisa disebut tari. Gerakan tari haruslah bersifat ritmis, yang pengertiannya adalah...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Gerak yang dilakukan dengan tenaga sangat kuat sampai melelahkan.' },
+                    { label: 'B', teks: 'Gerak yang selaras, memiliki ukuran waktu yang teratur, dan sesuai dengan ketukan/irama musik pengiringnya.' },
+                    { label: 'C', teks: 'Gerak melompat bebas tanpa tujuan tertentu.' },
+                    { label: 'D', teks: 'Gerak berdiam diri seperti patung dalam waktu lama.' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Gerak ritmis berarti gerakan tersebut diatur oleh ritme, memiliki hitungan waktu, dan berpadu harmonis dengan irama pengiringnya[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Berdasarkan perkembangan sejarahnya, tarian di Indonesia pada masa pengaruh ajaran Hindu-Buddha memiliki karakteristik utama yaitu...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Fungsinya bergeser menjadi alat propaganda menentang penjajah.' },
+                    { label: 'B', teks: 'Dipergunakan sebagai sarana memuja Dewa-Dewi, mengangkat cerita epos dewa, dan tumbuh sistematis di lingkungan candi/kerajaan.' },
+                    { label: 'C', teks: 'Hanya meniru gerakan hewan-hewan buas untuk berburu.' },
+                    { label: 'D', teks: 'Ditarikan menggunakan lagu-lagu bahasa Arab.' }
+                ],
+                kunci: 'B',
+                pembahasan: 'Masa Hindu-Buddha membawa konsep dewa-raja. Tari berkembang untuk ritual peribadatan di candi, memuja Dewa, dan menampilkan mitologi klasik seperti Ramayana[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Dalam tarian yang difungsikan murni untuk sarana upacara/ritual, gerak penari seringkali sangat monoton dan diulang-ulang. Nilai utama yang ingin ditekankan dalam tari tersebut bukanlah keindahan, melainkan nilai...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Religius dan kesakralan' },
+                    { label: 'B', teks: 'Ekonomi kreatif' },
+                    { label: 'C', teks: 'Hiburan semata' },
+                    { label: 'D', teks: 'Politik' }
+                ],
+                kunci: 'A',
+                pembahasan: 'Tari upacara seringkali bersifat repetitif (diulang-ulang) untuk menciptakan trans/kekhusyukan (sakral) dan mengkomunikasikan pesan religius antara manusia dengan Yang Maha Kuasa[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Sebuah karya tari diciptakan dengan koreografi yang sangat memukau, menggunakan kostum yang disewa khusus, disajikan di atas panggung proscenium ber-AC lengkap dengan tata lampu sorot beraneka warna. Penonton harus membeli tiket untuk menontonnya. Fungsi tari pada ilustrasi di atas adalah sebagai sarana...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Ritual pemanggilan arwah' },
+                    { label: 'B', teks: 'Pendidikan' },
+                    { label: 'C', teks: 'Pertunjukan (Tontonan/Seni Pertunjukan)' },
+                    { label: 'D', teks: 'Pergaulan penonton' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Tari yang dipersiapkan dengan segala keindahan visual, tata cahaya panggung, dan tiket komersial adalah ciri khas seni tari sebagai tontonan (pertunjukan/teatrikal)[cite: 2].'
+            },
+            {
+                pertanyaan: "<p style='text-align: justify;'>Karakteristik seni tari pada zaman prasejarah (animisme/dinamisme) dapat diidentifikasi dari ciri-cirinya, antara lain...</p>",
+                opsi: [
+                    { label: 'A', teks: 'Diciptakan oleh para bangsawan dan diiringi gamelan lengkap.' },
+                    { label: 'B', teks: 'Memiliki gerak yang sangat rumit, elegan, dan kostum yang gemerlap.' },
+                    { label: 'C', teks: 'Gerakan bersumber dari peniruan alam (imitatif hewan/tumbuhan) dengan ritme hentakan kaki sederhana yang bernuansa magis.' },
+                    { label: 'D', teks: 'Diselenggarakan di gedung-gedung pertunjukan berteknologi modern.' }
+                ],
+                kunci: 'C',
+                pembahasan: 'Manusia prasejarah belum mengenal peradaban modern/kerajaan. Tarian mereka lahir dari insting meniru gerakan alam (hewan, angin, burung) guna keperluan magis/bertahan hidup[cite: 2].'
+            }
+        ];
+
+        let currentSoalIndex = 0;
+        let score = 0;
+
+        const soalTracker = document.getElementById('soal-tracker');
+        const scoreTracker = document.getElementById('score-tracker');
+        const pertanyaanEl = document.getElementById('pertanyaan');
+        const opsiContainer = document.getElementById('opsi-container');
+        const pembahasanBox = document.getElementById('pembahasan-box');
+        const pembahasanTeks = document.getElementById('pembahasan-teks');
+        const btnNext = document.getElementById('btn-next');
+
+        function loadSoal() {
+            pembahasanBox.style.display = 'none';
+            btnNext.style.display = 'none';
+            opsiContainer.innerHTML = '';
+            
+            const soalDataSekarang = soalData[currentSoalIndex];
+            soalTracker.innerText = `Soal ${currentSoalIndex + 1} / ${soalData.length}`;
+            pertanyaanEl.innerHTML = soalDataSekarang.pertanyaan;
+
+            soalDataSekarang.opsi.forEach(opsi => {
+                const btn = document.createElement('button');
+                btn.classList.add('btn-opsi');
+                btn.innerHTML = `<span style="margin-right: 15px; background: #fff; border: 2px solid #000; padding: 2px 8px; border-radius: 4px;">${opsi.label}</span> ${opsi.teks}`;
+                btn.onclick = () => cekJawaban(btn, opsi.label, soalDataSekarang.kunci, soalDataSekarang.pembahasan);
+                opsiContainer.appendChild(btn);
+            });
+        }
+
+        function cekJawaban(btnElement, jawabanDipilih, jawabanBenar, pembahasan) {
+            const semuaBtn = document.querySelectorAll('.btn-opsi');
+            
+            // Matikan semua tombol setelah dijawab
+            semuaBtn.forEach(btn => {
+                btn.disabled = true;
+                const labelOpsinya = btn.innerText.charAt(0);
+                if (labelOpsinya === jawabanBenar) {
+                    btn.classList.add('benar');
+                }
+            });
+
+            if (jawabanDipilih === jawabanBenar) {
+                score += 2; // Setiap soal benar bernilai 2 poin (2 x 50 soal = 100)
+                scoreTracker.innerText = `Skor: ${score}`;
+            } else {
+                btnElement.classList.add('salah');
+            }x
+
+            // Tampilkan pembahasan dan tombol next
+            pembahasanTeks.innerText = pembahasan;
+            pembahasanBox.style.display = 'block';
+            btnNext.style.display = 'block';
+        }
+
+        function nextSoal() {
+            currentSoalIndex++;
+            if (currentSoalIndex < soalData.length) {
+                loadSoal();
+            } else {
+                document.getElementById('quiz-content').style.display = 'none';
+                document.querySelector('.header').style.display = 'none';
+                document.getElementById('score-board').style.display = 'block';
+                document.getElementById('final-score').innerText = `Skor Akhir: ${score}`;
+            }
+        }
+
+        // Jalankan kuis saat pertama kali dirender
+        loadSoal();
+    </script>
+</body>
+</html>
